@@ -1,0 +1,29 @@
+{
+  "dependencies": {
+    "express": "^4.18.3",
+    "fs-extra": "^11.2.0"
+  },
+  "name": "cs453-project",
+  "description": "Final project for CS453: Cloud Data Management.",
+  "version": "1.0.0",
+  "main": "app.js",
+  "directories": {
+    "public": "public",
+    "model": "model"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quakeroatsgriff/cs453-project.git"
+  },
+  "keywords": [],
+  "author": "quakeroatsgriff, Aiden41",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/quakeroatsgriff/cs453-project/issues"
+  },
+  "homepage": "https://github.com/quakeroatsgriff/cs453-project/#readme"
+}
