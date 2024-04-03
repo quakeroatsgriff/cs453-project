@@ -5,5 +5,5 @@ Griffen Agnello, Aiden Dickson
 
 ## How to run
 
-- `npm start` or `node app.js`
+- `node --env-file=.env server.js`
 - Connect to `http://localhost:3000/`

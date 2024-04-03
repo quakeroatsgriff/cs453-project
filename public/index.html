@@ -1,38 +1,61 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>CS453 Final Project</title>
-        <link rel="stylesheet" href="style.css">
-        <script src="fetch.js" defer></script>
-    </head>
-    <body>
-        <h1>Image Segmentation</h1>
+  <head>
+    <meta charset="utf-8">
+    <title>CS453 e-cards</title>
+    <link rel="stylesheet" href="/css/card-style.css">
+    <script src="/js/card-view.js" defer></script>
+    <script src="/js/creator-view.js" defer></script>
+    <script src="/js/app.js" defer></script>
+    <script src="/js/main.js" defer></script>
+  </head>
+  <body>
 
-        <form id="search">
-        Look up a word: <input type="text" id="word-input"/>
-        <input type="submit" value="Search!">
-        </form>
+    <!-- View: Card creator -->
+    <section class="main hidden" id="creator-view">
+      <h1>CS453 e-cards</h1>
+      <h2>Preview</h2>
+      <section id="card-view">
+        <div id="card-image"></div>
+        <div id="card-message"></div>
+      </section>
+      <form>
+        <h3>Choose a style:</h3>
+        <select id="card-style-input">
+          <option value="graduation">Happy Graduation</option>
+          <option value="fathersday">Happy Fathers Day</option>
+          <option value="july4">Happy 4th of July</option>
+        </select>
 
-        <hr />
+        <h3>Write a message:</h3>
+        <textarea id="card-message-input">Hi Pooh,
 
-        <div id="results" class="hidden">
-        The definition of <strong id="word"></strong> is:
-        <blockquote id="definition"></blockquote>
-        <hr />
-        <form id="set">
-            <h2>
-            Modify the definition for this word:
-            </h2>
-            Word: <input id="set-word-input" type="text" readonly/>
-            <p>
-            Definition:
-            </p>
-            <textarea id="set-def-input"></textarea>
-            <input type="submit" value="Set">
-            <p id="status"></p>
-        </form>
-        </div>
+🎉 Congrats!!! 🎉
 
-    </body>
+<3 Piglet</textarea>
+
+        <input type="submit" value="Create card">
+      </form>
+    </section>
+
+    <!-- View: Card created message -->
+    <section class="main hidden" id="status-view">
+      <h1>Card created!</h1>
+      <p>
+        <a href="" id="card-link">View your card</a>
+      </p>
+      <p>
+        <a href="/">Create another card</a>
+      </p>
+    </section>
+
+    <!-- View: Display card ID -->
+    <section class="main hidden" id="card-container">
+      <h1>CS453 e-cards</h1>
+      <section id="card-view">
+        <div id="card-image" class=""></div>
+        <div id="card-message"></div>
+      </section>
+    </section>
+  </body>
 </html>
