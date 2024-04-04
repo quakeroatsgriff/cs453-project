@@ -27,7 +27,8 @@ const s3_client = new s3.S3Client({
 });
 
 // Set up multer for handling file uploads
-const upload = multer();
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage })
 
 const app = express();
 const jsonParser = bodyParser.json();
@@ -68,6 +69,9 @@ async function onImageUpload( req, res ){
     Key: filename,
     Body: base64Image,
   });
+  img.Key = filename;
+  img.Body = base64Image;
+
   // console.log(command)
   try {
     // const response = await s3_client.send(command);
@@ -84,8 +88,9 @@ async function onImageUpload( req, res ){
       ETag: '"1b14f44a9"',
       ServerSideEncryption: 'AES256'
     }
-    console.log(response);
-    res.json(response);
+    // console.log(response);
+    await res.json(response);
+    // res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
   } catch (err) {
     console.error(err);
   }

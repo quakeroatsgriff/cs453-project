@@ -4,18 +4,27 @@ class CreatorView {
 
     this.style = '';
     this.message = '';
+    this.img = null;
 
     this.cardImage = document.querySelector('#card-image');
     this.cardMessage = document.querySelector('#card-message');
 
     this.styleInput = document.querySelector('#card-style-input');
     // this.messageInput = document.querySelector('#card-message-input');
+
+    // file input button
+    this.imageUpload = document.querySelector('#image-upload');
+    // "Upload Image" button
+    this.uploadButton = document.querySelector('#upload-button');
+    // Image that shows up on front end after uploading image
+    this.uploadedImage = document.querySelector('#uploaded-image');
     this.form = document.querySelector('form');
     this.creatorView = document.querySelector('#creator-view');
     this.statusView = document.querySelector('#status-view');
     this.cardLink = document.querySelector('#card-link');
 
     // Bind methods.
+    // this._onFileChange = this._onFileChange.bind(this);
     this._onFormChange = this._onFormChange.bind(this);
     this._onFormSubmit = this._onFormSubmit.bind(this);
     this._saveValuesFromInput = this._saveValuesFromInput.bind(this);
@@ -25,6 +34,7 @@ class CreatorView {
     this.styleInput.addEventListener('change', this._onFormChange);
     // this.messageInput.addEventListener('keyup', this._onFormChange);
     this.form.addEventListener('submit', this._onFormSubmit);
+    // this.imageUpload.addEventListener('change', this._onFileChange);
 
     this._saveValuesFromInput();
     this._updateView();
@@ -32,6 +42,12 @@ class CreatorView {
     this.containerElement.classList.remove('hidden');
   }
 
+  // _onFileChange(event) {
+  //   // this.uploadedImage.files[0];
+  //   console.log("helllo")
+  //   let img_link = URL.createObjectURL(this.imageUpload.files[0])
+  //   this.uploadedImage.style.background_image = `url(${img_link})`;
+  // }
   _onFormChange() {
     this._saveValuesFromInput();
     this._updateView();
@@ -42,7 +58,7 @@ class CreatorView {
    * @param {*} event
    */
   async _onFormSubmit(event) {
-
+    console.log("hi")
     event.preventDefault();
 
     this._saveValuesFromInput();
