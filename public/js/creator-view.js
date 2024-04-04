@@ -9,7 +9,7 @@ class CreatorView {
     this.cardMessage = document.querySelector('#card-message');
 
     this.styleInput = document.querySelector('#card-style-input');
-    this.messageInput = document.querySelector('#card-message-input');
+    // this.messageInput = document.querySelector('#card-message-input');
     this.form = document.querySelector('form');
     this.creatorView = document.querySelector('#creator-view');
     this.statusView = document.querySelector('#status-view');
@@ -23,12 +23,12 @@ class CreatorView {
 
     // Add event listeners.
     this.styleInput.addEventListener('change', this._onFormChange);
-    this.messageInput.addEventListener('keyup', this._onFormChange);
+    // this.messageInput.addEventListener('keyup', this._onFormChange);
     this.form.addEventListener('submit', this._onFormSubmit);
 
     this._saveValuesFromInput();
     this._updateView();
-    
+
     this.containerElement.classList.remove('hidden');
   }
 
@@ -37,7 +37,12 @@ class CreatorView {
     this._updateView();
   }
 
+    /**
+   * Callback called when a "submit" button is pressed
+   * @param {*} event
+   */
   async _onFormSubmit(event) {
+
     event.preventDefault();
 
     this._saveValuesFromInput();
@@ -69,7 +74,7 @@ class CreatorView {
     this.style = styleOptions[index].value;
 
     // Save message.
-    this.message = this.messageInput.value;
+    // this.message = this.messageInput.value;
   }
 
   _updateView() {

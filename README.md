@@ -5,5 +5,11 @@ Griffen Agnello, Aiden Dickson
 
 ## How to run
 
-- `node --env-file=.env server.js`
+- `npm start` or `node --env-file=.env server.js`
 - Connect to `http://localhost:3000/`
+
+## AWS stuff
+
+- DynamoDB table name: `cs453-project-database`
+  - Partition key: `cs453-parition-key`
+- S3 Bucket: `cs453-project-bucket`

@@ -4,10 +4,17 @@ const bodyParser = require('body-parser');
 const dynamodb = require("@aws-sdk/client-dynamodb");
 const s3 = require("@aws-sdk/client-s3");
 const fs = require("fs-extra");
+const multer = require("multer");
 
-if (process.env.ACCESS_KEY === undefined)
-{
-    return;
+const PORT_NUM = 3000
+var img = {
+  Key: null,
+  Body: null
+};
+
+if( process.env.ACCESS_KEY === undefined ) {
+  console.log( "Missing env access key. Maybe try running: node --env-file=.env server.js" )
+  return;
 }
 
 const s3_client = new s3.S3Client({
@@ -17,52 +24,73 @@ const s3_client = new s3.S3Client({
     },
     region: process.env.S3_REGION,
     signatureVersion: 'v4',
-  });
-//const mongodb = require('mongodb').MongoClient;
-//const ObjectId = require('mongodb').ObjectId;
+});
 
-//const MONGO_URL = 'mongodb://localhost:27017/ecard-db';
+// Set up multer for handling file uploads
+const upload = multer();
 
 const app = express();
 const jsonParser = bodyParser.json();
 
 app.use(express.static('public'));
 
-let db = null;
-let collection = null;
 /*
- * Complete the startDbAndServer function, which connects to the MongoDB
- * server and creates a Node web server listening to port 3000.
+ * Create a Node web server listening to port 3000.
  */
-async function startDbAndServer() {
-    //let client = await mongodb.connect(MONGO_URL);
-    //db = client.db('ecard-db')
-    //collection = db.collection('card')
-    await app.listen(3000);
-    console.log('Listening on port 3000');
-    console.log('Access the page here: http://localhost:3000/');
+async function startServer() {
+    await app.listen( PORT_NUM , () => {
+      console.log( `Listening on port ${PORT_NUM}` );
+      console.log( `Access the page here: http://localhost:${PORT_NUM}/` );
+    } );
 };
 
-startDbAndServer();
+startServer();
 
-async function onSaveCard(req, res) {
-    const imageBuffer = fs.readFileSync("happy_peter_smile.png");
-    const base64Image = imageBuffer.toString('base64');
-    const command = new s3.PutObjectCommand({
-        Bucket: process.env.BUCKET_NAME,
-        Key: "happy_peter_smile",
-        Body: base64Image,
-      });
-    
-    try {
-        const response = await s3_client.send(command);
-        console.log(response);
-        res.json(response);
-    } catch (err) {
-        console.error(err);
+
+/**
+ * POST request for uploading images to S3
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
+async function onImageUpload( req, res ){
+  let file = req.file
+  // Check if a file was uploaded
+  if ( !file ) {
+    return;
+  }
+  // Retrieve the image data from the request body
+  const base64Image = file.buffer.toString('base64');
+  // Remove .png file extension from the filename
+  const filename = file.originalname.slice(0,-4);
+  const command = new s3.PutObjectCommand({
+    Bucket: process.env.BUCKET_NAME,
+    Key: filename,
+    Body: base64Image,
+  });
+  // console.log(command)
+  try {
+    // const response = await s3_client.send(command);
+    // Dummy response so we don't keep uploading images to s3
+    const response = {
+      '$metadata': {
+        httpStatusCode: 200,
+        requestId: 'YG9CEYQDHYD46SHV',
+        extendedRequestId: 'l7v',
+        cfId: undefined,
+        attempts: 1,
+        totalRetryDelay: 0
+      },
+      ETag: '"1b14f44a9"',
+      ServerSideEncryption: 'AES256'
     }
+    console.log(response);
+    res.json(response);
+  } catch (err) {
+    console.error(err);
+  }
 }
-app.post('/save', jsonParser, onSaveCard);
+
 
 async function onGetCard(req, res) {
     // const cardString = req.params.cardId;
@@ -70,9 +98,13 @@ async function onGetCard(req, res) {
     // const response = await collection.findOne(cardId);
     res.json({style: response.style, message: response.message});
 }
-app.get('/get/:cardId', onGetCard);
 
 async function onGetCardView(req, res) {
   res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
 }
+
+
+// app.post('/save', jsonParser, onSaveCard);
+app.post('/save', upload.single('image-upload'), onImageUpload);
+app.get('/get/:cardId', onGetCard);
 app.get('*', onGetCardView);

@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>CS453 e-cards</title>
+    <title>CS453 Segmentation</title>
     <link rel="stylesheet" href="/css/card-style.css">
     <script src="/js/card-view.js" defer></script>
     <script src="/js/creator-view.js" defer></script>
@@ -13,28 +13,26 @@
 
     <!-- View: Card creator -->
     <section class="main hidden" id="creator-view">
-      <h1>CS453 e-cards</h1>
-      <h2>Preview</h2>
+      <h1>CS453 Final Project</h1>
+      <h2>Image Segmentation</h2>
       <section id="card-view">
-        <div id="card-image"></div>
-        <div id="card-message"></div>
+        <!-- <div id="card-image"></div> -->
+        <!-- <div id="card-message"></div> -->
+        <img id="uploaded-image" src="#" alt="Uploaded Image" style="display: none; max-width: 300px;">
       </section>
       <form>
-        <h3>Choose a style:</h3>
+        <h3>Segment an Image in the Database:</h3>
         <select id="card-style-input">
           <option value="graduation">Happy Graduation</option>
-          <option value="fathersday">Happy Fathers Day</option>
-          <option value="july4">Happy 4th of July</option>
+          <!-- <option value="fathersday">Happy Fathers Day</option> -->
+          <!-- <option value="july4">Happy 4th of July</option> -->
         </select>
-
-        <h3>Write a message:</h3>
-        <textarea id="card-message-input">Hi Pooh,
-
-🎉 Congrats!!! 🎉
-
-<3 Piglet</textarea>
-
-        <input type="submit" value="Create card">
+      </form>
+      <form id="upload-form" action="/save" method="post" enctype="multipart/form-data">
+        <h3>Upload an Image to the Database:</h3>
+        <!-- <textarea id="card-message-input">Pooh</textarea> -->
+        <input type="file" accept="image/png" name="image-upload" id="image-upload">
+        <input type="submit" value="Upload Image" name="upload-button" id="upload-button">
       </form>
     </section>
 
