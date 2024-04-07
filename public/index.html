@@ -32,7 +32,11 @@
       <form id="upload-form" action="/save" method="post" enctype="multipart/form-data">
         <h3>Upload an Image to the Database:</h3>
         <!-- <textarea id="card-message-input">Pooh</textarea> -->
-        <input type="file" accept="image/png" name="image-upload" id="image-upload">
+        <label for="image-title">Name:</label>
+        <input type="text" name="image-title" id="image-title" required>
+        <br><br>
+        <input type="file" accept="image/png" name="image-upload" id="image-upload" required>
+        <br><br>
         <input type="submit" value="Upload Image" name="upload-button" id="upload-button">
       </form>
     </section>

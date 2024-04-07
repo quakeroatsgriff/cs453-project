@@ -18,12 +18,20 @@ if( process.env.ACCESS_KEY === undefined ) {
 }
 
 const s3_client = new s3.S3Client({
-    credentials: {
-      accessKeyId: process.env.ACCESS_KEY,
-      secretAccessKey: process.env.SECRET_KEY,
-    },
-    region: process.env.S3_REGION,
-    signatureVersion: 'v4',
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY,
+    secretAccessKey: process.env.SECRET_KEY,
+  },
+  region: process.env.S3_REGION,
+  signatureVersion: 'v4',
+});
+
+const dynamo_client = new dynamodb.DynamoDBClient({
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY,
+    secretAccessKey: process.env.SECRET_KEY,
+  },
+  region: process.env.S3_REGION,
 });
 
 // Set up multer for handling file uploads
@@ -55,16 +63,17 @@ startServer();
  * @returns
  */
 async function onImageUpload( req, res ){
-  let file = req.file
+  let name = req.body['image-title'];
+  let file = req.file;
   // Check if a file was uploaded
-  if ( !file ) {
-    return;
-  }
+  // if ( !file ) {
+  //   return;
+  // }
   // Retrieve the image data from the request body
   const base64Image = file.buffer.toString('base64');
   // Remove .png file extension from the filename
   const filename = file.originalname.slice(0,-4);
-  const command = new s3.PutObjectCommand({
+  const s3_command = new s3.PutObjectCommand({
     Bucket: process.env.BUCKET_NAME,
     Key: filename,
     Body: base64Image,
@@ -72,25 +81,40 @@ async function onImageUpload( req, res ){
   img.Key = filename;
   img.Body = base64Image;
 
+  const db_command = new dynamodb.PutItemCommand({
+    TableName: process.env.DB_TABLE,
+    Item: {
+      Key: {'S': filename},
+      Name: {'S': name},
+    },
+  });
+
   // console.log(command)
   try {
-    // const response = await s3_client.send(command);
+    const response = await s3_client.send(s3_command);
     // Dummy response so we don't keep uploading images to s3
-    const response = {
-      '$metadata': {
-        httpStatusCode: 200,
-        requestId: 'YG9CEYQDHYD46SHV',
-        extendedRequestId: 'l7v',
-        cfId: undefined,
-        attempts: 1,
-        totalRetryDelay: 0
-      },
-      ETag: '"1b14f44a9"',
-      ServerSideEncryption: 'AES256'
-    }
-    // console.log(response);
+    // const response = {
+    //   '$metadata': {
+    //     httpStatusCode: 200,
+    //     requestId: 'YG9CEYQDHYD46SHV',
+    //     extendedRequestId: 'l7v',
+    //     cfId: undefined,
+    //     attempts: 1,
+    //     totalRetryDelay: 0
+    //   },
+    //   ETag: '"1b14f44a9"',
+    //   ServerSideEncryption: 'AES256'
+    // }
+    //console.log(response);
+    //await res.json(response);
+    //res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+  } catch (err) {
+    console.error(err);
+  }
+  try {
+    const response = await dynamo_client.send(db_command);
+    //console.log(response);
     await res.json(response);
-    // res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
   } catch (err) {
     console.error(err);
   }
