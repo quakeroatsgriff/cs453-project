@@ -1,12 +1,19 @@
 const express = require('express');
+const session = require('express-session');
 const path = require('path');
 const bodyParser = require('body-parser');
 const dynamodb = require("@aws-sdk/client-dynamodb");
 const s3 = require("@aws-sdk/client-s3");
 const fs = require("fs-extra");
 const multer = require("multer");
+const { access } = require('fs');
+const querystring = require('querystring');
+const passport = require('passport');
 
-const PORT_NUM = 3000
+require('./auth');
+
+const PORT_NUM = 3000;
+
 var img = {
   Key: null,
   Body: null
@@ -42,6 +49,10 @@ const app = express();
 const jsonParser = bodyParser.json();
 
 app.use(express.static('public'));
+app.use(session({ secret: "cats", resave: false, saveUninitialized: true}));
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 /*
  * Create a Node web server listening to port 3000.
@@ -132,8 +143,26 @@ async function onGetCardView(req, res) {
   res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
 }
 
+function isLoggedIn(req, res, next) {
+  req.user ? next() : res.sendStatus(401);
+}
+
+app.get("/auth/google",
+  passport.authenticate('google', {scope: ['email', 'profile'] })
+);
+
+app.get("/google/callback",
+  passport.authenticate('google', {
+    successRedirect: '/',
+    failureRedirect: '/auth/failure'
+  })
+);
+
+app.get("/auth/failure", (req, res) => {
+  res.send('Could not authenticate!');
+});
 
 // app.post('/save', jsonParser, onSaveCard);
-app.post('/save', upload.single('image-upload'), onImageUpload);
+app.post('/save', isLoggedIn, upload.single('image-upload'), onImageUpload);
 app.get('/get/:cardId', onGetCard);
-app.get('*', onGetCardView);
+app.get('*', isLoggedIn, onGetCardView);
