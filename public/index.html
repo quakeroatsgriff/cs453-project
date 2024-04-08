@@ -25,9 +25,11 @@
         <h3>Segment an Image in the Database:</h3>
         <select id="card-style-input">
           <option value="graduation">Happy Graduation</option>
-          <!-- <option value="fathersday">Happy Fathers Day</option> -->
-          <!-- <option value="july4">Happy 4th of July</option> -->
         </select>
+      </form>
+      <br><br>
+      <form id="segment-form" action="/segment" method="get">
+        <input type="submit" value="Segment!" name="segment-button" id="segment-button">
       </form>
       <form id="upload-form" action="/save" method="post" enctype="multipart/form-data">
         <h3>Upload an Image to the Database:</h3>

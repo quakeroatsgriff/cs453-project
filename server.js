@@ -9,6 +9,7 @@ const multer = require("multer");
 const { access } = require('fs');
 const querystring = require('querystring');
 const passport = require('passport');
+const { exec } = require('child_process');
 
 require('./auth');
 
@@ -143,6 +144,42 @@ async function onGetCardView(req, res) {
   res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
 }
 
+async function onSegmentImage( req, res ){
+  // let filename = req.body['image-title'];
+  const filename = 'peter_heatmap';
+  let dynamo_res = null
+
+  // const describe_table = new dynamodb.DescribeTableCommand({TableName:process.env.DB_TABLE})
+  const get_dynamo_command = new dynamodb.GetItemCommand({
+    TableName: process.env.DB_TABLE,
+    Key: {
+      Key: {'S': filename},
+    }
+  });
+
+  try {
+    dynamo_res = await dynamo_client.send(get_dynamo_command);
+  } catch (err) {
+    console.error(err);
+    res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+  }
+  const pythonProcess = exec(`python run_engine.py --key ${dynamo_res.Item.Key.S}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error executing Python script: ${error}`);
+      return;
+    }
+    // Get
+    const output = JSON.parse(stdout);
+    // console.log(stdout)
+
+  });
+  // pythonProcess.on('exit', (error, stdout, stderr) => {
+  //     const output = JSON.parse(stdout);
+  //     console.log(stdout)
+  //     res.json(output)
+  // });
+}
+
 function isLoggedIn(req, res, next) {
   req.user ? next() : res.sendStatus(401);
 }
@@ -162,7 +199,10 @@ app.get("/auth/failure", (req, res) => {
   res.send('Could not authenticate!');
 });
 
+
+app.get("/segment/", isLoggedIn, onSegmentImage);
 // app.post('/save', jsonParser, onSaveCard);
 app.post('/save', isLoggedIn, upload.single('image-upload'), onImageUpload);
+
 app.get('/get/:cardId', onGetCard);
 app.get('*', isLoggedIn, onGetCardView);
