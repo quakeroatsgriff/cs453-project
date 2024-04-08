@@ -9,9 +9,21 @@ Griffen Agnello, Aiden Dickson
 
 ## How to run
 
-- `python -m venv venv`
+### Setting up the environment
+
+- Make sure the `.env` file is in the main directory with the necessary values
+- Set up the Python environment for the machine learning model and the Node.js dependencies.
+  - Do this once:
+    ```
+    npm install
+    python -m venv venv
+    source ./venv/bin/activate
+    pip install -r requirements.txt
+    ```
+
+### Starting up the application
+
 - `source ./venv/bin/activate`
-- `pip install -r requirements.txt`
 - `npm start` or `node --env-file=.env server.js`
 - Connect to `http://localhost:3000/`
 

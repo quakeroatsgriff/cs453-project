@@ -10,6 +10,7 @@ const { access } = require('fs');
 const querystring = require('querystring');
 const passport = require('passport');
 const { exec } = require('child_process');
+const { promisify } = require('util');
 
 require('./auth');
 
@@ -46,6 +47,9 @@ const dynamo_client = new dynamodb.DynamoDBClient({
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
 
+// Promisify the exec function
+const execAsync = promisify(exec);
+
 const app = express();
 const jsonParser = bodyParser.json();
 
@@ -69,31 +73,29 @@ startServer();
 
 
 /**
- * POST request for uploading images to S3
+ * POST request for uploading images to S3 and segmenting
  * @param {*} req
  * @param {*} res
  * @returns
  */
-async function onImageUpload( req, res ){
+async function uploadAndSegment( req, res ){
   let name = req.body['image-title'];
   let file = req.file;
-  // Check if a file was uploaded
-  // if ( !file ) {
-  //   return;
-  // }
   // Retrieve the image data from the request body
   const base64Image = file.buffer.toString('base64');
   // Remove .png file extension from the filename
   const filename = file.originalname.slice(0,-4);
-  const s3_command = new s3.PutObjectCommand({
+  img.Key = filename;
+  img.Body = base64Image;
+
+  // Create AWS requests
+  let s3_command = new s3.PutObjectCommand({
     Bucket: process.env.BUCKET_NAME,
     Key: filename,
     Body: base64Image,
   });
-  img.Key = filename;
-  img.Body = base64Image;
 
-  const db_command = new dynamodb.PutItemCommand({
+  let db_command = new dynamodb.PutItemCommand({
     TableName: process.env.DB_TABLE,
     Item: {
       Key: {'S': filename},
@@ -101,31 +103,53 @@ async function onImageUpload( req, res ){
     },
   });
 
-  // console.log(command)
+  // Upload image to S3 and Dynamo
   try {
-    const response = await s3_client.send(s3_command);
-    // Dummy response so we don't keep uploading images to s3
-    // const response = {
-    //   '$metadata': {
-    //     httpStatusCode: 200,
-    //     requestId: 'YG9CEYQDHYD46SHV',
-    //     extendedRequestId: 'l7v',
-    //     cfId: undefined,
-    //     attempts: 1,
-    //     totalRetryDelay: 0
-    //   },
-    //   ETag: '"1b14f44a9"',
-    //   ServerSideEncryption: 'AES256'
-    // }
-    //console.log(response);
-    //await res.json(response);
-    //res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+    const s3_response = await s3_client.send(s3_command);
   } catch (err) {
     console.error(err);
   }
   try {
-    const response = await dynamo_client.send(db_command);
-    //console.log(response);
+    const dynamo_response = await dynamo_client.send(db_command);
+  } catch (err) {
+    console.error(err);
+  }
+
+  // ------ Perform segmentation with onnx engine ------
+
+  let dynamo_res = null
+
+  // Query to S3 with filename as key inside the python script
+  const {stdout, stderr} = await execAsync(`python run_engine.py --key ${filename}`)
+  const processed_stdout = JSON.parse( processStdout( stdout ) )
+
+  const filename_seg = filename + "_segmented"
+  const name_seg = name + "_segmented"
+  // AWS Requests for segmented images
+  s3_command = new s3.PutObjectCommand({
+    Bucket: process.env.BUCKET_NAME,
+    Key: filename_seg,
+    Body: processed_stdout.data,
+  });
+
+  db_command = new dynamodb.PutItemCommand({
+    TableName: process.env.DB_TABLE,
+    Item: {
+      Key: {'S': filename_seg},
+      Name: {'S': name_seg},
+    },
+  });
+
+  // Send AWS requests of segmented image
+  try {
+    const response = s3_client.send(s3_command);
+  } catch (err) {
+    console.error(err);
+  }
+  try {
+    const response =  dynamo_client.send(db_command);
+    // res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+    console.log(response)
     await res.json(response);
   } catch (err) {
     console.error(err);
@@ -144,40 +168,12 @@ async function onGetCardView(req, res) {
   res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
 }
 
-async function onSegmentImage( req, res ){
-  // let filename = req.body['image-title'];
-  const filename = 'peter_heatmap';
-  let dynamo_res = null
-
-  // const describe_table = new dynamodb.DescribeTableCommand({TableName:process.env.DB_TABLE})
-  const get_dynamo_command = new dynamodb.GetItemCommand({
-    TableName: process.env.DB_TABLE,
-    Key: {
-      Key: {'S': filename},
-    }
-  });
-
-  try {
-    dynamo_res = await dynamo_client.send(get_dynamo_command);
-  } catch (err) {
-    console.error(err);
-    res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
-  }
-  const pythonProcess = exec(`python run_engine.py --key ${dynamo_res.Item.Key.S}`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error executing Python script: ${error}`);
-      return;
-    }
-    // Get
-    const output = JSON.parse(stdout);
-    // console.log(stdout)
-
-  });
-  // pythonProcess.on('exit', (error, stdout, stderr) => {
-  //     const output = JSON.parse(stdout);
-  //     console.log(stdout)
-  //     res.json(output)
-  // });
+/**
+ * Function to process stdout. This is easily one of the silliest functions I've
+ * ever had to write. Yes, it is necessary to OnSegmentImage
+ */
+function processStdout(stdout) {
+  return stdout;
 }
 
 function isLoggedIn(req, res, next) {
@@ -200,9 +196,8 @@ app.get("/auth/failure", (req, res) => {
 });
 
 
-app.get("/segment/", isLoggedIn, onSegmentImage);
 // app.post('/save', jsonParser, onSaveCard);
-app.post('/save', isLoggedIn, upload.single('image-upload'), onImageUpload);
+app.post('/save', isLoggedIn, upload.single('image-upload'), uploadAndSegment);
 
 app.get('/get/:cardId', onGetCard);
 app.get('*', isLoggedIn, onGetCardView);

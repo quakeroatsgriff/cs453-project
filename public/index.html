@@ -28,9 +28,6 @@
         </select>
       </form>
       <br><br>
-      <form id="segment-form" action="/segment" method="get">
-        <input type="submit" value="Segment!" name="segment-button" id="segment-button">
-      </form>
       <form id="upload-form" action="/save" method="post" enctype="multipart/form-data">
         <h3>Upload an Image to the Database:</h3>
         <!-- <textarea id="card-message-input">Pooh</textarea> -->
@@ -39,7 +36,7 @@
         <br><br>
         <input type="file" accept="image/png" name="image-upload" id="image-upload" required>
         <br><br>
-        <input type="submit" value="Upload Image" name="upload-button" id="upload-button">
+        <input type="submit" value="Upload and Segment Image" name="upload-button" id="upload-button">
       </form>
     </section>
 
