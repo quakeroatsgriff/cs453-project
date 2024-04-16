@@ -22,6 +22,7 @@ class CreatorView {
     this._updateView = this._updateView.bind(this);
 
     this._fetchList();
+    this._checkLoggedIn();
 
     // Add event listeners.
     this.styleInput.addEventListener('change', this._onFormChange);
@@ -58,6 +59,23 @@ class CreatorView {
       option.innerHTML = json[i].Name['S'];
       this.styleInput.appendChild( option );
     }
+  }
+
+  async _checkLoggedIn(){
+    const fetchOptions = {
+      method: 'get',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+    };
+    const result = await fetch('/loggedin', fetchOptions);
+    if(result.status === 401)
+    {
+      return;
+    }
+    const loginButton = document.querySelector('#login');
+    loginButton.style.display = 'none';
   }
 
   /**

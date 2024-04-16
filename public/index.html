@@ -10,19 +10,24 @@
     <script src="/js/main.js" defer></script>
   </head>
   <body>
-    <a href="http://localhost:3000/auth/google">Login</a>
+    <a href="http://localhost:3000/auth/google" id="login">Login</a>
     <!-- View: Card creator -->
     <section class="main hidden" id="creator-view">
-      <h1>CS453 Final Project</h1>
-      <h2>Image Segmentation</h2>
-      <h1>Original</h1>
-      <section id="card-view">
-        <img id="image" class=""></div>
-      </section>
-      <h1>Segmented</h1>
-      <section id="card-view">
-        <img id="segmented-image" class=""></div>
-      </section>
+      <h1>Image Segmentation</h1>
+      <div class="row">
+        <div class="column">
+          <h1>Original</h1>
+          <section id="card-view">
+            <img id="image" class="">
+          </section>
+        </div>
+        <div class="column">
+          <h1>Segmented</h1>
+          <section id="card-view">
+            <img id="segmented-image" class="">
+          </section>
+        </div>
+      </div>
       <form>
         <h3>Segment an Image in the Database:</h3>
         <select id="card-style-input">
@@ -38,7 +43,7 @@
         <br><br>
         <input type="file" accept="image/png" name="image-upload" id="image-upload" required>
         <br><br>
-        <input type="submit" value="Upload and Segment Image" name="upload-button" id="upload-button">
+        <input type="submit" value="Segment Image" name="upload-button" id="upload-button">
       </form>
     </section>
 
@@ -57,14 +62,19 @@
     <section class="main hidden" id="card-container">
       <h1>Segmentation Result For:</h1>
       <div id="image-name"></div>
-      <h1>Original</h1>
-      <section id="card-view">
-        <img id="image" class=""></div>
-      </section>
-      <h1>Segmented</h1>
-      <section id="card-view">
-        <img id="segmented-image" class=""></div>
-      </section>
-    </section>
+      <div class="row">
+        <div class="column">
+          <h1>Original</h1>
+          <section id="card-view">
+            <img id="image" class="">
+          </section>
+        </div>
+        <div class="column">
+          <h1>Segmented</h1>
+          <section id="card-view">
+            <img id="segmented-image" class="">
+          </section>
+        </div>
+      </div>
   </body>
 </html>

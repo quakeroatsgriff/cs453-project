@@ -4,20 +4,35 @@ body {
   --card-size: 350px;
 }
 
+.row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+  padding-right: 5px;
+}
+
 #card-view {
   display: flex;
 }
 
 #image {
   background-size: contain;
-  max-width: 35%;
-  max-height: 35%;
+  max-width: 90%;
+  max-height: 90%;
 }
 
 #segmented-image {
   background-size: contain;
-  max-width: 35%;
-  max-height: 35%;
+  max-width: 90%;
+  max-height: 90%;
 }
 
 #image-name {

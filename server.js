@@ -265,5 +265,7 @@ app.get('/list/', onGetList);
  */
 app.get('/get/:filename', onGetCard);
 
+app.get('/loggedin', isLoggedIn);
+
 app.get('*', onGetCardView);
 
