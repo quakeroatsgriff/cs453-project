@@ -15,20 +15,22 @@
     <section class="main hidden" id="creator-view">
       <h1>CS453 Final Project</h1>
       <h2>Image Segmentation</h2>
+      <h1>Original</h1>
       <section id="card-view">
-        <!-- <div id="card-image"></div> -->
-        <!-- <div id="card-message"></div> -->
-        <p>hi</p>
-        <div id="uploaded-image" style="display: none; max-width: 300px;"></div>
+        <img id="image" class=""></div>
+      </section>
+      <h1>Segmented</h1>
+      <section id="card-view">
+        <img id="segmented-image" class=""></div>
       </section>
       <form>
         <h3>Segment an Image in the Database:</h3>
         <select id="card-style-input">
-          <option value="graduation">Happy Graduation</option>
+          <option value="default">Select an Image</option>
         </select>
       </form>
       <br><br>
-      <form id="upload-form" action="/save" method="post" enctype="multipart/form-data">
+      <form id="upload-form" enctype="application/json">
         <h3>Upload an Image to the Database:</h3>
         <!-- <textarea id="card-message-input">Pooh</textarea> -->
         <label for="image-title">Name:</label>
@@ -42,21 +44,26 @@
 
     <!-- View: Card created message -->
     <section class="main hidden" id="status-view">
-      <h1>Card created!</h1>
+      <h1>Segment complete! :)</h1>
       <p>
-        <a href="" id="card-link">View your card</a>
+        <a href="" id="card-link">View your images</a>
       </p>
       <p>
-        <a href="/">Create another card</a>
+        <a href="/">Upload and segment another image</a>
       </p>
     </section>
 
     <!-- View: Display card ID -->
     <section class="main hidden" id="card-container">
-      <h1>CS453 e-cards</h1>
+      <h1>Segmentation Result For:</h1>
+      <div id="image-name"></div>
+      <h1>Original</h1>
       <section id="card-view">
-        <div id="card-image" class=""></div>
-        <div id="card-message"></div>
+        <img id="image" class=""></div>
+      </section>
+      <h1>Segmented</h1>
+      <section id="card-view">
+        <img id="segmented-image" class=""></div>
       </section>
     </section>
   </body>

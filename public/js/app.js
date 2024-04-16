@@ -3,8 +3,8 @@ class App {
     const urlPathString = window.location.pathname;
     const parts = urlPathString.split('/');
     if (parts.length > 2 && parts[1] === 'id') {
-      const cardId = parts[2];
-      this._showCardView(cardId);
+      const filename = parts[2];
+      this._showCardView(filename);
     } else {
       this._showCreateView();
     }
@@ -15,8 +15,8 @@ class App {
     const creatorView = new CreatorView(viewContainer);
   }
 
-  _showCardView(cardId) {
+  _showCardView(filename) {
     const viewContainer = document.querySelector('#card-container');
-    const cardView = new CardView(viewContainer, cardId);
+    const cardView = new CardView(viewContainer, filename);
   }
 }

@@ -11,7 +11,7 @@ const querystring = require('querystring');
 const passport = require('passport');
 const { exec } = require('child_process');
 const { promisify } = require('util');
-
+print = console.log
 require('./auth');
 
 const PORT_NUM = 3000;
@@ -51,7 +51,8 @@ const upload = multer({ storage: storage })
 const execAsync = promisify(exec);
 
 const app = express();
-const jsonParser = bodyParser.json();
+app.use(bodyParser.json({limit: '5mb'}));
+app.use(bodyParser.urlencoded({extended: true, limit: '5mb' }));
 
 app.use(express.static('public'));
 app.use(session({ secret: "cats", resave: false, saveUninitialized: true}));
@@ -79,14 +80,16 @@ startServer();
  * @returns
  */
 async function uploadAndSegment( req, res ){
-  let name = req.body['image-title'];
-  let file = req.file;
+  // console.log(req.body)
+  let name = req.body['image_title'];
   // Retrieve the image data from the request body
-  const base64Image = file.buffer.toString('base64');
+  let file = req.body['file'];
+  let decoded = atob(file)
+
+  let base64Image = btoa(decoded)
   // Remove .png file extension from the filename
-  const filename = file.originalname.slice(0,-4);
+  let filename = req.body['filename'].slice(0,-4);
   img.Key = filename;
-  img.Body = base64Image;
 
   // Create AWS requests
   let s3_command = new s3.PutObjectCommand({
@@ -124,7 +127,7 @@ async function uploadAndSegment( req, res ){
   const processed_stdout = JSON.parse( processStdout( stdout ) )
 
   const filename_seg = filename + "_segmented"
-  const name_seg = name + "_segmented"
+  // const name_seg = name + "_segmented"
   // AWS Requests for segmented images
   s3_command = new s3.PutObjectCommand({
     Bucket: process.env.BUCKET_NAME,
@@ -132,40 +135,87 @@ async function uploadAndSegment( req, res ){
     Body: processed_stdout.data,
   });
 
-  db_command = new dynamodb.PutItemCommand({
-    TableName: process.env.DB_TABLE,
-    Item: {
-      Key: {'S': filename_seg},
-      Name: {'S': name_seg},
-    },
-  });
+  // db_command = new dynamodb.PutItemCommand({
+  //   TableName: process.env.DB_TABLE,
+  //   Item: {
+  //     Key: {'S': filename_seg},
+  //     Name: {'S': name_seg},
+  //   },
+  // });
 
   // Send AWS requests of segmented image
   try {
-    const response = s3_client.send(s3_command);
+    const seg_s3_res = s3_client.send(s3_command);
   } catch (err) {
     console.error(err);
   }
-  try {
-    const response =  dynamo_client.send(db_command);
-    // res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
-    console.log(response)
-    await res.json(response);
-  } catch (err) {
-    console.error(err);
-  }
+  // try {
+  //   const response =  dynamo_client.send(db_command);
+  //   // res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+  // } catch (err) {
+  //   console.error(err);
+  // }
+  let response = {
+    filename: filename
+  };
+  await res.json(response);
+
 }
 
 
 async function onGetCard(req, res) {
-    // const cardString = req.params.cardId;
-    // const cardId = new ObjectId(cardString);
-    // const response = await collection.findOne(cardId);
-    res.json({style: response.style, message: response.message});
+  let filename = req.params['filename'];
+  const seg_filename = filename + "_segmented";
+  // Create AWS requests
+  let s3_command = new s3.GetObjectCommand({
+    Bucket: process.env.BUCKET_NAME,
+    Key: filename,
+  });
+
+  let seg_s3_command = new s3.GetObjectCommand({
+    Bucket: process.env.BUCKET_NAME,
+    Key: seg_filename,
+  });
+
+  let db_command = new dynamodb.GetItemCommand({
+    TableName: process.env.DB_TABLE,
+    Key: {
+      Key: {
+        S: filename
+      }
+    }
+  });
+  let s3_res = null;
+  let seg_s3_res = null;
+  let db_res = null;
+  try {
+    s3_res = await s3_client.send(s3_command);
+    seg_s3_res = await s3_client.send(seg_s3_command);
+    db_res = await dynamo_client.send(db_command);
+    // print(s3_res)
+    // print(seg_s3_res)
+    // print(db_res)
+
+  } catch (err) {
+    console.error(err);
+  };
+  const image = await s3_res.Body.transformToString();
+  const seg_image = await seg_s3_res.Body.transformToString();
+  const dynamo_name = db_res.Item["Name"].S;
+
+  res.json({image: image, seg_image: seg_image, dynamo_name: dynamo_name});
 }
 
 async function onGetCardView(req, res) {
   res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+}
+
+async function onGetList(req, res){
+  let db_command = new dynamodb.ScanCommand({
+    TableName: process.env.DB_TABLE,
+  });
+  let db_res = await dynamo_client.send(db_command);
+  res.json(db_res.Items)
 }
 
 /**
@@ -197,7 +247,13 @@ app.get("/auth/failure", (req, res) => {
 
 
 // app.post('/save', jsonParser, onSaveCard);
-app.post('/save', isLoggedIn, upload.single('image-upload'), uploadAndSegment);
+// app.post('/save', isLoggedIn, upload.single('image-upload'), uploadAndSegment);
+// app.post('/save', isLoggedIn, uploadAndSegment);
+app.post('/save', uploadAndSegment);
 
-app.get('/get/:cardId', onGetCard);
-app.get('*', isLoggedIn, onGetCardView);
+app.get('/list/', onGetList);
+
+app.get('/get/:filename', onGetCard);
+// app.get('*', isLoggedIn, onGetCardView);
+app.get('*', onGetCardView);
+

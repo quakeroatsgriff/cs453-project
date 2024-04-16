@@ -5,17 +5,26 @@ body {
 }
 
 #card-view {
-  border: 2px solid black;
   display: flex;
 }
 
-#card-image {
+#image {
   background-size: contain;
-  height: var(--card-size);
-  width: var(--card-size);
 }
 
-#card-message {
+#segmented-image {
+  background-size: contain;
+}
+
+#image-name {
+  display: flex;
+
+  align-items: center;
+
+  font-size: 30pt;
+}
+
+#image-title {
   display: flex;
 
   align-items: center;
@@ -25,8 +34,7 @@ body {
   white-space: pre-wrap;
 
   box-sizing: border-box;
-  height: var(--card-size);
-  width: calc(100% - var(--card-size));
+
   overflow-y:auto;
 }
 
