@@ -265,6 +265,9 @@ app.get('/list/', onGetList);
  */
 app.get('/get/:filename', onGetCard);
 
+/**
+ * route for pages to check if we are logged in to hide the login button
+ */
 app.get('/loggedin', isLoggedIn);
 
 app.get('*', onGetCardView);
