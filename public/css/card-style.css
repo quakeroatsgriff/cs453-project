@@ -10,10 +10,14 @@ body {
 
 #image {
   background-size: contain;
+  max-width: 35%;
+  max-height: 35%;
 }
 
 #segmented-image {
   background-size: contain;
+  max-width: 35%;
+  max-height: 35%;
 }
 
 #image-name {
@@ -60,18 +64,6 @@ input[type=submit] {
 
 input[type=submit] {
   display: block;
-}
-
-.graduation {
-  background-image: url('../images/graduation.jpg');
-}
-
-.fathersday {
-  background-image: url('../images/fathersday.jpg');
-}
-
-.july4 {
-  background-image: url('../images/july4.jpg');
 }
 
 .hidden {

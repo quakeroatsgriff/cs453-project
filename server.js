@@ -13,7 +13,7 @@ const PORT_NUM = 3000;
 
 // If the environment is not set up properly, exit.
 if( process.env.ACCESS_KEY === undefined ) {
-  console.log( "Missing env access key. Maybe try running: node --env-file=.env server.js" )
+  console.log( "Missing env access key. Maybe try running: node --env-file=.env server.js" );
   return;
 }
 
@@ -114,7 +114,7 @@ async function uploadAndSegment( req, res ){
   let dynamo_res = null
 
   // Query to S3 with filename as key inside the python script
-  const {stdout, stderr} = await execAsync(`python run_engine.py --key ${filename}`)
+  const {stdout, stderr} = await execAsync(`python run_engine.py --key ${filename}`, {maxBuffer: undefined})
   const processed_stdout = JSON.parse( processStdout( stdout ) )
 
   const filename_seg = filename + "_segmented"
@@ -214,7 +214,7 @@ function processStdout(stdout) {
 }
 
 /**
- *
+ * Checks if the user is present in the request, otherwise sends an unauthorized status
  * @param {*} req
  * @param {*} res
  * @param {*} next
@@ -223,10 +223,18 @@ function isLoggedIn(req, res, next) {
   req.user ? next() : res.sendStatus(401);
 }
 
+/**
+ * Goes to the auth route and authenticates a user
+ */
 app.get("/auth/google",
   passport.authenticate('google', {scope: ['email', 'profile'] })
 );
 
+/**
+ * The callback route for after a user signs in
+ * If user successfully signs in, it redirects back to home
+ * Otherwise, it goes to the auth/failure route
+ */
 app.get("/google/callback",
   passport.authenticate('google', {
     successRedirect: '/',
@@ -234,13 +242,28 @@ app.get("/google/callback",
   })
 );
 
+/**
+ * Failure page for when a user could not sign in
+ */
 app.get("/auth/failure", (req, res) => {
   res.send('Could not authenticate!');
 });
 
+/**
+ * Save route for when a user presses the upload button.
+ * Requires someone be logged in.
+ */
 app.post('/save', isLoggedIn, uploadAndSegment);
+
+/**
+ * List route for getting all keyes in dynamodb for the dropdown
+ */
 app.get('/list/', onGetList);
+
+/**
+ * get route for getting a certain image from s3 and the name from dynamo
+ */
 app.get('/get/:filename', onGetCard);
-// app.get('*', isLoggedIn, onGetCardView);
+
 app.get('*', onGetCardView);
 

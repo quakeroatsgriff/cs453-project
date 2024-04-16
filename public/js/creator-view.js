@@ -2,11 +2,6 @@ class CreatorView {
   constructor(containerElement) {
     this.containerElement = containerElement;
 
-    this.style = '';
-    this.message = '';
-    this.img = null;
-    this.dynamo_list = null;
-
     // Dropdown menu for selecting images from the S3 database
     this.styleInput = document.querySelector('#card-style-input');
     // Form for "Upload and Segment Image" button and image upload button
@@ -117,6 +112,11 @@ class CreatorView {
 
     // Upload the image to the server back-end for segmenting.
     const result = await fetch('/save', fetchOptions);
+    if(result.status === 401)
+    {
+      window.alert("Please sign in!");
+      return;
+    }
     const json = await result.json();
 
     // Inform the client the segmentation and upload is successful. Change the view
