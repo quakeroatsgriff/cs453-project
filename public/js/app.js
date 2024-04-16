@@ -2,6 +2,7 @@ class App {
   constructor() {
     const urlPathString = window.location.pathname;
     const parts = urlPathString.split('/');
+    // Find the filename from the URL and show them in their own view.
     if (parts.length > 2 && parts[1] === 'id') {
       const filename = parts[2];
       this._showCardView(filename);
