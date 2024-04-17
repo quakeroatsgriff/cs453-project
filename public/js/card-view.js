@@ -60,7 +60,7 @@ class CardView {
       return;
     }
     const loginButton = document.querySelector('#login');
-    loginButton.innerHTML = "Back to Home";
+    loginButton.innerHTML = "Home";
     loginButton.style.href = '/';
   }
 }

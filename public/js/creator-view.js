@@ -135,8 +135,8 @@ class CreatorView {
     const result = await fetch('/save', fetchOptions);
     if(result.status === 401)
     {
+      process_text.hidden = true;
       window.alert("Please sign in!");
-      this.processText.hidden = "true";
       return;
     }
     const json = await result.json();
