@@ -8,7 +8,9 @@ class CardView {
     // filename
     this.filename = filename;
     this._loadCard();
-    this._checkLoggedIn();
+    const loginButton = document.querySelector('#login');
+    loginButton.innerHTML = "Home";
+    loginButton.style.href = '/';
   }
 
   /**
@@ -44,23 +46,5 @@ class CardView {
 
     // Swap the view so that you see the "segmentation complete!" page.
     this.containerElement.classList.remove('hidden');
-  }
-
-  async _checkLoggedIn(){
-    const fetchOptions = {
-      method: 'get',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-    };
-    const result = await fetch('/loggedin', fetchOptions);
-    if(result.status === 401)
-    {
-      return;
-    }
-    const loginButton = document.querySelector('#login');
-    loginButton.innerHTML = "Home";
-    loginButton.style.href = '/';
   }
 }
