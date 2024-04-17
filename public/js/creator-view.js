@@ -91,8 +91,11 @@ class CreatorView {
    * @param {*} event
    */
   async _onFormSubmit(event) {
+    
     event.preventDefault();
-
+    // Processing text
+    const process_text = document.querySelector('#upload-text');
+    process_text.hidden = false;
     // Retrieve HTML elements that were filled out.
     const image_title = document.querySelector('#image-title');
     const uploaded_file = document.querySelector('#image-upload').files[0];
@@ -133,6 +136,7 @@ class CreatorView {
     if(result.status === 401)
     {
       window.alert("Please sign in!");
+      this.processText.hidden = "true";
       return;
     }
     const json = await result.json();
