@@ -79,8 +79,9 @@ async function uploadAndSegment( req, res ){
   let decoded = atob(file)
 
   let base64Image = btoa(decoded)
+  // Change whitespace to underscores
   // Remove .png file extension from the filename
-  let filename = req.body['filename'].slice(0,-4);
+  let filename = req.body['filename'].replace(/\s+/g, '_').slice(0,-4);
 
   // Create AWS requests
   let s3_command = new s3.PutObjectCommand({
