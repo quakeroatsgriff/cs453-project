@@ -103,9 +103,9 @@ class CustomMSAM():
 
 def main():
     args = parse_option()
-    load_dotenv(dotenv_path="../cs453-project/.env")
+    # load_dotenv(dotenv_path="../cs453-project/.env")
     # Get environment variables to access S3
-    # load_dotenv()
+    load_dotenv()
     ACCESS_KEY = os.getenv( 'ACCESS_KEY' )
     SECRET_KEY = os.getenv( 'SECRET_KEY' )
     BUCKET_NAME = os.getenv( 'BUCKET_NAME' )

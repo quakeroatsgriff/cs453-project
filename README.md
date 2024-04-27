@@ -32,3 +32,15 @@ Griffen Agnello, Aiden Dickson
 - DynamoDB table name: `cs453-project-database`
   - Partition key: `cs453-parition-key`
 - S3 Bucket: `cs453-project-bucket`
+
+## What is happening here???
+
+### server.js
+
+### card-view.js / creator-view.js
+
+### OAuth
+
+### AWS DynamoDB
+
+### AWS S3
